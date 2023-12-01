@@ -1,25 +1,58 @@
 // Create web server
 
-var http = require('http');
-var fs = require('fs');
 
-var server = http.createServer(function(req, res){
-    console.log('Requesting: ' + req.url);
-    if(req.url === '/home' || req.url === '/'){
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        fs.createReadStream(__dirname + '/index.html').pipe(res);
-    } else if(req.url === '/contact'){
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        fs.createReadStream(__dirname + '/contact.html').pipe(res);
-    } else if(req.url === '/api/ninjas'){
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        var ninjas = [{name: 'ryu', age: 29}, {name: 'yoshi', age: 32}];
-        res.end(JSON.stringify(ninjas));
-    } else {
-        res.writeHead(404, {'Content-Type': 'text/html'});
-        fs.createReadStream(__dirname + '/404.html').pipe(res);
-    }
+    const express = require('express');
+const app = express();
+const port = 3000;
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+
+// Use cookieParser
+app.use(cookieParser('1234'));
+
+// Use bodyParser
+app.use(bodyParser.urlencoded({extended: false}));
+
+// Set view engine
+app.set('view engine', 'pug');
+
+// Set static directory
+app.use(express.static('public'));
+
+// Import module
+const main = require('./routes/main');
+const login = require('./routes/login');
+const logout = require('./routes/logout');
+const signup = require('./routes/signup');
+const write = require('./routes/write');
+const view = require('./routes/view');
+const modify = require('./routes/modify');
+const remove = require('./routes/remove');
+const search = require('./routes/search');
+const comment = require('./routes/comment');
+const commentRemove = require('./routes/commentRemove');
+const commentModify = require('./routes/commentModify');
+
+// Setting router
+app.use('/', main);
+app.use('/login', login);
+app.use('/logout', logout);
+app.use('/signup', signup);
+app.use('/write', write);
+app.use('/view', view);
+app.use('/modify', modify);
+app.use('/remove', remove);
+app.use('/search', search);
+app.use('/comment', comment);
+app.use('/commentRemove', commentRemove);
+app.use('/commentModify', commentModify);
+
+// Error handler
+app.use((req, res, next) => {
+    res.status(404).send('Sorry cant find that!');
 });
 
-server.listen(3000, '
-
+// Run server
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}!`);
+});
